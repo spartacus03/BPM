@@ -194,5 +194,68 @@ namespace BPM_WPF
                 viewModel.SelectedSong.Presets.Remove(selectedPreset);
             }
         }
+
+        private void PlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            if(viewModel.PlayPause == "Pause")
+            {
+                viewModel.Pause();
+            }
+            else
+            {
+                viewModel.Play();
+            }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch(e.Key)
+            {
+                case Key.Play:
+                    viewModel.Play();
+                    break;
+                case Key.Pause:
+                case Key.MediaStop:
+                    viewModel.Pause();
+                    break;
+                case Key.Left:
+                    // rewind song 5 seconds
+                    viewModel.SongPos = viewModel.SongPos - 5;
+                    if(viewModel.SongPos < 0)
+                    {
+                        viewModel.SongPos = 0;
+                    }
+                    SetTimerText(viewModel.SongPos);
+                    viewModel.SetPosSeconds(viewModel.SongPos);
+                    break;
+                case Key.Right:
+                    // fast forward song 5 seconds
+                    viewModel.SongPos = viewModel.SongPos + 5;
+                    if (viewModel.SongPos > viewModel.SongLength)
+                    {
+                        viewModel.SongPos = viewModel.SongLength;
+                    }
+                    SetTimerText(viewModel.SongPos);
+                    viewModel.SetPosSeconds(viewModel.SongPos);
+                    break;
+                case Key.Down:
+                    // slow down 2.5%
+                    viewModel.SongSpeed = viewModel.SongSpeed - 2.5;
+                    break;
+                case Key.Up:
+                    // speed up 2.5%
+                    viewModel.SongSpeed = viewModel.SongSpeed + 2.5;
+                    break;
+                case Key.MediaPlayPause:
+                case Key.Space:
+                    this.PlayPause_Click(sender, e);
+                    break;
+            }
+        }
+
+        private void songListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;//prevent this key press
+        }
     }
 }

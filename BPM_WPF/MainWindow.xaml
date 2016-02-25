@@ -5,38 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BPM_WPF"
         mc:Ignorable="d"
-        Title="BPManipulator" Height="448.341" Width="442" Closing="Window_Closing">
+        Title="BPManipulator" Height="448.341" Width="653.887" Closing="Window_Closing"
+        PreviewKeyDown="Window_KeyDown">
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_Open" Click="Open_Clicked" />
+                    <MenuItem Header="_Import Song" Click="Open_Clicked" />
                 </MenuItem>
             </Menu>
             <StackPanel></StackPanel>
         </DockPanel>
 
-        <Slider x:Name="Speed" HorizontalAlignment="Left" Margin="61,342,0,0" VerticalAlignment="Top" Width="354" TickPlacement="BottomRight" Maximum="150" Minimum="5" Value="100" ValueChanged="Speed_ValueChanged"/>
-        <Slider x:Name="SongPosition" HorizontalAlignment="Left" Margin="61,292,0,0" VerticalAlignment="Top" Width="354" TickPlacement="BottomRight" Maximum="{Binding Path=SongLength, UpdateSourceTrigger=PropertyChanged}" Minimum="0" Value="{Binding Path=SongPos, UpdateSourceTrigger=PropertyChanged}" Thumb.DragCompleted="SongPosition_DragCompleted" Thumb.DragStarted="SongPosition_DragStarted" ValueChanged="SongPosition_ValueChanged" LargeChange="0" Focusable="False"/>
-        <ToggleButton x:Name="PlayPause" Content="Play" HorizontalAlignment="Left" Margin="260,371,0,0" VerticalAlignment="Top" Width="75"/>
-        <ToggleButton x:Name="Reset" Content="Reset" HorizontalAlignment="Left" Margin="340,371,0,0" VerticalAlignment="Top" Width="75"/>
+        <Slider x:Name="Speed" HorizontalAlignment="Left" Margin="61,342,0,0" VerticalAlignment="Top" Width="568" TickPlacement="BottomRight" Maximum="150" Minimum="5" ValueChanged="Speed_ValueChanged" IsSnapToTickEnabled="True" TickFrequency="2.5" LargeChange="2.5" SmallChange="1" Value="{Binding Path=SongSpeed, UpdateSourceTrigger=PropertyChanged}"/>
+        <Slider x:Name="SongPosition" HorizontalAlignment="Left" Margin="61,292,0,0" VerticalAlignment="Top" Width="568" TickPlacement="BottomRight" Maximum="{Binding Path=SongLength, UpdateSourceTrigger=PropertyChanged}" Minimum="0" Value="{Binding Path=SongPos, UpdateSourceTrigger=PropertyChanged}" Thumb.DragCompleted="SongPosition_DragCompleted" Thumb.DragStarted="SongPosition_DragStarted" ValueChanged="SongPosition_ValueChanged" LargeChange="0" Focusable="False"/>
+        <ToggleButton x:Name="PlayPause" Content="{Binding Path=PlayPause, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="473,371,0,0" VerticalAlignment="Top" Width="75" Click="PlayPause_Click" Height="20" />
+        <ToggleButton x:Name="Reset" Content="Reset" HorizontalAlignment="Left" Margin="553,371,0,0" VerticalAlignment="Top" Width="75"/>
         <Label x:Name="Label1" Content="Speed" HorizontalAlignment="Left" Margin="10,336,0,0" VerticalAlignment="Top"/>
         <Label x:Name="Label2" Content="Position" HorizontalAlignment="Left" Margin="10,286,0,0" VerticalAlignment="Top"/>
         <Label x:Name="SpeedLbl" Content="{Binding Path=SpeedTxt, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,356,0,0" VerticalAlignment="Top"/>
         <Label x:Name="PositionLbl" Content="{Binding Path=PositionTxt, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,306,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,-21.373"/>
-        <ListBox x:Name="songListBox" HorizontalAlignment="Left" Height="231" Margin="10,26,0,0" VerticalAlignment="Top" Width="206" ItemsSource="{Binding Path=SongManager.Songs, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedSong, Mode=TwoWay}" />
-        <ListBox x:Name="presetListBox" HorizontalAlignment="Left" Height="100" Margin="228,132,0,0" VerticalAlignment="Top" Width="187" ItemsSource="{Binding Path=SelectedSong.Presets, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="presetListBox_SelectionChanged" SelectionMode="Single" DisplayMemberPath="Name"/>
-        <TextBox x:Name="newPresetBox" HorizontalAlignment="Left" Height="23" Margin="228,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="123" Text="{Binding Path=NewPresetName}" />
-        <Button x:Name="addPreset" Content="Save" HorizontalAlignment="Left" Margin="356,26,0,0" VerticalAlignment="Top" Width="59" Click="addPreset_Click"/>
-        <TextBox x:Name="startMinBox" HorizontalAlignment="Left" Height="23" Margin="228,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartMin}" PreviewTextInput="PreviewNumberTextInput" />
-        <TextBox x:Name="stopMinBox" HorizontalAlignment="Left" Height="23" Margin="228,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopMin}" PreviewTextInput="PreviewNumberTextInput" />
-        <TextBox x:Name="startSecBox" HorizontalAlignment="Left" Height="23" Margin="263,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartSec}" PreviewTextInput="PreviewNumberTextInput" />
-        <TextBox x:Name="stopSecBox" HorizontalAlignment="Left" Height="23" Margin="263,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopSec}" PreviewTextInput="PreviewNumberTextInput" />
-        <Button x:Name="captureStart" Content="Start Pt." HorizontalAlignment="Left" Margin="356,54,0,0" VerticalAlignment="Top" Width="59" Click="captureStart_Click"/>
-        <Button x:Name="captureEnd" Content="End Pt." HorizontalAlignment="Left" Margin="356,82,0,0" VerticalAlignment="Top" Width="59" Click="captureEnd_Click"/>
-        <Label x:Name="label" Content="Saved Loop Points" HorizontalAlignment="Left" Margin="228,105,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="startMSecBox" HorizontalAlignment="Left" Height="23" Margin="298,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartMSec}" PreviewTextInput="PreviewNumberTextInput" />
-        <TextBox x:Name="stopMSecBox" HorizontalAlignment="Left" Height="23" Margin="298,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopMSec}" PreviewTextInput="PreviewNumberTextInput" />
-        <Button x:Name="deletePreset" Content="Delete Preset" HorizontalAlignment="Left" Margin="228,237,0,0" VerticalAlignment="Top" Width="90" Click="deletePreset_Click"/>
+        <ListBox x:Name="songListBox" HorizontalAlignment="Left" Height="206" Margin="10,26,0,0" VerticalAlignment="Top" Width="339" ItemsSource="{Binding Path=SongManager.Songs, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=SelectedSong, Mode=TwoWay}" Focusable="False" KeyDown="songListBox_KeyDown" PreviewKeyDown="songListBox_KeyDown" />
+        <ListBox x:Name="presetListBox" HorizontalAlignment="Left" Height="100" Margin="358,132,0,0" VerticalAlignment="Top" Width="271" ItemsSource="{Binding Path=SelectedSong.Presets, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="presetListBox_SelectionChanged" SelectionMode="Single" DisplayMemberPath="Name"/>
+        <TextBox x:Name="newPresetBox" HorizontalAlignment="Left" Height="23" Margin="358,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="207" Text="{Binding Path=NewPresetName}" />
+        <Button x:Name="savePreset" Content="Save" HorizontalAlignment="Left" Margin="570,26,0,0" VerticalAlignment="Top" Width="59" Click="addPreset_Click"/>
+        <TextBox x:Name="startMinBox" HorizontalAlignment="Left" Height="23" Margin="441,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartMin}" PreviewTextInput="PreviewNumberTextInput" />
+        <TextBox x:Name="stopMinBox" HorizontalAlignment="Left" Height="23" Margin="441,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopMin}" PreviewTextInput="PreviewNumberTextInput" />
+        <TextBox x:Name="startSecBox" HorizontalAlignment="Left" Height="23" Margin="476,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartSec}" PreviewTextInput="PreviewNumberTextInput" />
+        <TextBox x:Name="stopSecBox" HorizontalAlignment="Left" Height="23" Margin="476,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopSec}" PreviewTextInput="PreviewNumberTextInput" />
+        <Button x:Name="captureStart" Content="Start Pt." HorizontalAlignment="Left" Margin="569,54,0,0" VerticalAlignment="Top" Width="59" Click="captureStart_Click"/>
+        <Button x:Name="captureEnd" Content="End Pt." HorizontalAlignment="Left" Margin="569,82,0,0" VerticalAlignment="Top" Width="59" Click="captureEnd_Click"/>
+        <Label x:Name="label" Content="Saved Loop Points" HorizontalAlignment="Left" Margin="358,105,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="startMSecBox" HorizontalAlignment="Left" Height="23" Margin="511,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StartMSec}" PreviewTextInput="PreviewNumberTextInput" />
+        <TextBox x:Name="stopMSecBox" HorizontalAlignment="Left" Height="23" Margin="511,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" Text="{Binding Path=StopMSec}" PreviewTextInput="PreviewNumberTextInput" />
+        <Button x:Name="deletePreset" Content="Delete Preset" HorizontalAlignment="Left" Margin="539,237,0,0" VerticalAlignment="Top" Width="90" Click="deletePreset_Click"/>
+        <Button x:Name="addPreset" Content="Add Preset" HorizontalAlignment="Left" Margin="442,237,0,0" VerticalAlignment="Top" Width="92" Click="addPreset_Click" RenderTransformOrigin="0.493,0.363"/>
+        <Button x:Name="deleteSong" Content="Delete Song" HorizontalAlignment="Left" Margin="257,237,0,0" VerticalAlignment="Top" Width="92" Click="addPreset_Click" RenderTransformOrigin="0.493,0.363"/>
     </Grid>
 </Window>

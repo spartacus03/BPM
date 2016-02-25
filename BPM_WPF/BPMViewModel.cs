@@ -185,6 +185,20 @@ namespace BPM_WPF
             }
         }
 
+        private double _songSpeed = 100;
+        public double SongSpeed
+        {
+            get
+            {
+                return _songSpeed;
+            }
+            set
+            {
+                _songSpeed = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         private Song _selectedSong = null;
         public Song SelectedSong
         {
@@ -197,12 +211,31 @@ namespace BPM_WPF
                 _selectedSong = value;
                 if(_selectedSong != null)
                 {
-                    PlaySong(_selectedSong);
+                    ChangeSong(_selectedSong);
                     if (this.speed != 100)
                     {
                         this.ChangeSpeed(this.speed);
                     }
+                    this.PlayPause = "Pause";
                 }
+                else
+                {
+                    this.PlayPause = "Play";
+                }
+                NotifyPropertyChanged();
+            }
+        }
+
+        private string _playPause = "Play";
+        public string PlayPause
+        {
+            get
+            {
+                return _playPause;
+            }
+            set
+            {
+                _playPause = value;
                 NotifyPropertyChanged();
             }
         }
@@ -219,12 +252,9 @@ namespace BPM_WPF
             bass.SetPosSeconds(chan, value);
         }
 
-        public void PlaySong(Song song, Preset preset = null)
+        public void ChangeSong(Song song, Preset preset = null)
         {
-            if (dispatcherTimer != null)
-            {
-                dispatcherTimer.Stop();
-            }
+            this.Pause();
 
             if (chan != 0)
             {
@@ -233,21 +263,13 @@ namespace BPM_WPF
             }
 
             chan = bass.OpenFile(song.FilePath);
+            this.ChangeSpeed((float)this.SongSpeed);
 
             long pos = Bass.BASS_ChannelGetLength(chan);
             double seconds = Bass.BASS_ChannelBytes2Seconds(chan, pos);
             SongLength = (int)seconds;
 
-            Bass.BASS_ChannelPlay(chan, true);
-
-            if (dispatcherTimer == null)
-            {
-                dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            }
-
-            dispatcherTimer.Start();
+            this.Play();
         }
 
         public void ChangeSpeed(float newValue)
@@ -262,7 +284,10 @@ namespace BPM_WPF
                 lysnc = Bass.BASS_ChannelSetSync(chan, BASSSync.BASS_SYNC_POS, endPos, LoopSync, (IntPtr)0);
             }
 
-            Bass.BASS_ChannelPlay(chan, false);
+            if (this.PlayPause == "Pause")
+            {
+                Bass.BASS_ChannelPlay(chan, false);
+            }
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
@@ -283,17 +308,7 @@ namespace BPM_WPF
 
         public void Loop(Preset preset)
         {
-            if(SelectedSong == null || chan == 0)
-            {
-                return;
-            }
-
-            if (dispatcherTimer != null)
-            {
-                dispatcherTimer.Stop();
-            }
-
-            Bass.BASS_ChannelStop(chan);
+            this.Pause();
             
             startPos = Bass.BASS_ChannelSeconds2Bytes(chan, preset.Begin);
             endPos = Bass.BASS_ChannelSeconds2Bytes(chan, preset.End);
@@ -309,7 +324,33 @@ namespace BPM_WPF
                 Bass.BASS_ChannelSetPosition(chan, startPos, BASSMode.BASS_POS_BYTES);
             }
 
+            this.Play();
+        }
+
+        private SYNCPROC LoopSync;
+        private void ProcSync(int handle, int channel, int data, IntPtr user)
+        {
+            if (!Bass.BASS_ChannelSetPosition(channel, startPos, BASSMode.BASS_POS_BYTES))// try seeking to loop start
+            {
+                //Bass.BASS_ChannelSetPosition(channel, 0, BASSMode.BASS_POS_BYTES); // failed, go to start of file instead
+            }
+        }
+
+        public void Play()
+        {
+            if(this.PlayPause == "Pause" || SelectedSong == null || chan == 0)
+            {
+                return;
+            }
+
+            if (dispatcherTimer != null)
+            {
+                dispatcherTimer.Stop();
+            }
+
             Bass.BASS_ChannelPlay(chan, false);
+
+            this.PlayPause = "Pause";
 
             if (dispatcherTimer == null)
             {
@@ -321,13 +362,21 @@ namespace BPM_WPF
             dispatcherTimer.Start();
         }
 
-        private SYNCPROC LoopSync;
-        private void ProcSync(int handle, int channel, int data, IntPtr user)
+        public void Pause()
         {
-            if (!Bass.BASS_ChannelSetPosition(channel, startPos, BASSMode.BASS_POS_BYTES))// try seeking to loop start
+            if (this.PlayPause == "Play" || SelectedSong == null || chan == 0)
             {
-                //Bass.BASS_ChannelSetPosition(channel, 0, BASSMode.BASS_POS_BYTES); // failed, go to start of file instead
+                return;
             }
+
+            if (dispatcherTimer != null)
+            {
+                dispatcherTimer.Stop();
+            }
+
+            Bass.BASS_ChannelStop(chan);
+
+            this.PlayPause = "Play";
         }
     }
 }
